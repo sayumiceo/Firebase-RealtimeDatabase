@@ -160,6 +160,7 @@ h1 {
 }
 
 .message-text {
+    white-space: pre-wrap;
     padding: 10px 15px;
     border-radius: 20px;
     margin-bottom: 4px;

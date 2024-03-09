@@ -171,10 +171,12 @@ sendButton.addEventListener('click', sendMessage);
 
 // Send message on Enter key press, allow Shift+Enter for new line
 messageInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault(); // Prevent the default action to avoid new line
-        sendMessage(); // Send the message
+  if (event.key === 'Enter') {
+    if (!event.isComposing && !event.shiftKey) { // IMEの変換中でないこと、またはShiftキーが押されていないことを確認
+      event.preventDefault(); // 既定の動作をキャンセル
+      sendMessage(); // メッセージを送信
     }
+  }
 });
 
 // Listen for new messages and append them to the messages div
