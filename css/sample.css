@@ -152,7 +152,6 @@ h1 {
 
 .message-row.sent {
     flex-direction: row-reverse;
-    justify-content: flex-end;
 }
 
 .message-row.sent .message-text {
