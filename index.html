@@ -159,10 +159,11 @@ function sendMessage() {
             background: selectedBackground // 選択された背景色
         };
 
-        push(ref(db, 'messages'), { text, timestamp });
+        // FirebaseにmessageDataオブジェクト全体を送信
+        push(ref(db, 'messages'), messageData);
+
         messageInput.value = ''; // Clear the message input after sending
         messageInput.style.height = 'auto'; // Reset the textarea height
-
     }
 }
 

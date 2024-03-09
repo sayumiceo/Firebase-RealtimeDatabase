@@ -7,7 +7,7 @@ body, html {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden; /* スクロールバーを非表示にする */
+    overflow: hidden; 
 }
 
 #user-settings {
@@ -69,8 +69,8 @@ h1 {
     flex-direction: column;
     justify-content: space-between;
     height: 90vh;
-    width: 100%; /* Set to take the full width available */
-    max-width: none; /* Remove the max-width constraint */
+    width: 100%; 
+    max-width: 800px; 
     margin: 5vh auto;
     border-radius: 10px;
     overflow: hidden;
@@ -158,6 +158,7 @@ h1 {
 .message-row.sent .message-text {
     background-color: #007bff;
     color: white;
+    margin-left: 10px;
 }
 
 .message-text {
@@ -165,16 +166,19 @@ h1 {
     padding: 10px 15px;
     border-radius: 20px;
     margin-bottom: 4px;
+    margin-right: 10px;
     word-wrap: break-word;
     max-width: calc(100% - 50px);
+    position: relative; /* 相対位置を指定 */
+    padding: 10px 15px; /* 右側に余白を増やしてタイムスタンプ用のスペースを作る */
 }
 
 .message-time {
-    font-size: 0.8em;
+    font-size: 0.5em;
     color: #666;
-    align-self: flex-end;
-    margin-top: -4px;
-    order: 3;
+    position: absolute; /* 絶対位置を指定 */
+    bottom: 5px; /* 下から5pxの位置 */
+    right: 10px; /* 右から10pxの位置 */
 }
 
 
