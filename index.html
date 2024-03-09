@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Firebase_version9_RealtimeDB(G'sACADEMY初学者用サンプル)</title>
+<link rel="stylesheet" href="/css/sample.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Overlock:wght@900&family=Roboto:wght@500&family=Zen+Kaku+Gothic+New&family=Zen+Maru+Gothic:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+
+</head>
+<body>
+
+<!-- ユーザー設定画面 -->
+<div id="user-settings">
+    <h1>ADAチャット</h1>
+    
+    <!-- アイコン選択 -->
+    <div id="icon-selection">
+        <p>アイコンを選択してください：</p>
+        <!-- 絵文字アイコン -->
+        <button class="icon-btn">😘</button>
+        <button class="icon-btn">🤩</button>
+        <button class="icon-btn">😍</button>
+        <button class="icon-btn">🥳</button>
+        <button class="icon-btn">🤤</button>
+        <button class="icon-btn">🌷</button>
+        <button class="icon-btn">🩷</button>
+        <button class="icon-btn">🩵</button>
+        <button class="icon-btn">💚</button>
+        <button class="icon-btn">🦭</button>
+        <button class="icon-btn">😻</button>
+        <button class="icon-btn">🐶</button>
+    </div>
+    
+    <!-- 背景選択 -->
+    <div id="background-selection">
+        <p>背景を選択してください</p>
+        <!-- 背景色 -->
+        <button class="bg-btn" style="background-color: rgb(255, 181, 181);"></button>
+        <button class="bg-btn" style="background-color: rgb(255, 239, 181);"></button>
+        <button class="bg-btn" style="background-color: rgb(202, 239, 202);"></button>
+        <button class="bg-btn" style="background-color: rgb(181, 200, 255);"></button>
+        <button class="bg-btn" style="background-color: rgb(237, 205, 241);"></button>
+        <button class="bg-btn" style="background-color: rgb(248, 206, 231);"></button>
+    </div>
+    
+    <!-- 設定完了ボタン -->
+    <button id="complete-settings">Let's talk</button>
+</div>
+
+<!-- コンテンツ表示画面 -->
+<div id="chat-container">
+    <div id="messages"></div>
+
+    <!-- 送信ボタンと入力エリアのコンテナ -->
+    <div id="input-container">
+        <!-- テキスト入力エリア -->
+        <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+        <!-- 送信ボタン -->
+        <button id="send-button"><i class="fa fa-arrow-right"></i></button>
+    </div>
+    
+
+</div>
+
+
+<!--/ コンテンツ表示画面 -->
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } 
+    from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  
+    // Your web app's Firebase configuration・・・自分だけのキー！！！！
+    const firebaseConfig = {
+    apiKey: "AIzaSyBHv3qHJP57Byx1roxlxsTIqut8woDHfh8",
+    authDomain: "chat-3de4b.firebaseapp.com",
+    projectId: "chat-3de4b",
+    storageBucket: "chat-3de4b.appspot.com",
+    messagingSenderId: "236581802750",
+    appId: "1:236581802750:web:4caccec8ee62c2a8aa4baf"
+    };
+    // Your web app's Firebase configuration・・・自分だけのキー！！！！
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Elements
+    const sendButton = document.getElementById('send-button');
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+
+// ユーザー設定
+document.addEventListener('DOMContentLoaded', function() {
+    const completeSettingsButton = document.getElementById('complete-settings');
+    const userSettings = document.getElementById('user-settings');
+    const chatContainer = document.getElementById('chat-container');
+    let selectedIcon = '';
+    let selectedBackground = '';
+
+    // 初期状態でチャット画面を非表示にする
+    chatContainer.style.display = 'none';
+
+    // アイコンの選択を処理
+    document.querySelectorAll('.icon-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedIcon = this.textContent; // 選択した絵文字を保存
+            document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('selected')); // 他のアイコンの選択を解除
+            this.classList.add('selected'); // 選択されたアイコンをハイライト
+        });
+    });
+
+    // 背景の選択を処理
+    document.querySelectorAll('.bg-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedBackground = this.style.backgroundColor; // 選択した背景色を保存
+            document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('selected')); // 他の背景の選択を解除
+            this.classList.add('selected'); // 選択された背景をハイライト
+
+        });
+    });
+
+    // 完了ボタンを処理
+    completeSettingsButton.addEventListener('click', function() {
+        if (selectedIcon && selectedBackground) {
+            userSettings.style.display = 'none'; // ユーザー設定画面を非表示
+            chatContainer.style.display = 'flex'; // チャット画面を表示（flexに変更してください）
+        } else {
+            alert('アイコンと背景を選択してください。');
+        }
+    });
+});
+
+let selectedIcon = '😎'; // デフォルト値を設定
+let selectedBackground = '#ffffff'; // デフォルトの背景色を設定
+const currentUserId = 'current_user';
+
+
+// Send message function
+function sendMessage() {
+    const text = messageInput.value.trim();
+    if (text) {
+        const timestamp = new Date().toISOString(); // UTCのタイムスタンプをISO形式で生成
+
+        const messageData = {
+            text,
+            timestamp,
+            userId: currentUserId, // 送信者のユーザーID
+            icon: selectedIcon, // 選択されたアイコン
+            background: selectedBackground // 選択された背景色
+        };
+
+        push(ref(db, 'messages'), { text, timestamp });
+        messageInput.value = ''; // Clear the message input after sending
+        messageInput.style.height = 'auto'; // Reset the textarea height
+
+    }
+}
+
+// Send message to Firebase when send button is clicked
+sendButton.addEventListener('click', sendMessage);
+
+// Send message on Enter key press, allow Shift+Enter for new line
+messageInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault(); // Prevent the default action to avoid new line
+        sendMessage(); // Send the message
+    }
+});
+
+// Listen for new messages and append them to the messages div
+onChildAdded(ref(db, 'messages'), (snapshot) => {
+    const message = snapshot.val();
+    const messageDate = new Date(message.timestamp);
+    const messageTime = formatAMPM(messageDate);
+
+    // 新しいメッセージ要素を作成
+    const messageElement = document.createElement('div');
+    const textElement = document.createElement('span');
+    const timeElement = document.createElement('span');
+    textElement.textContent = message.text;
+    timeElement.textContent = messageTime;
+
+    if (message.userId === currentUserId) {
+        // 自分が送信したメッセージのスタイリング
+        messageElement.className = 'message-row sent';
+        textElement.className = 'message-text sent';
+        // アイコンは表示しないため、追加しない
+    } else {
+        // 他のユーザーからのメッセージのスタイリング
+        messageElement.className = 'message-row received';
+        textElement.className = 'message-text received';
+        const iconElement = document.createElement('span');
+        iconElement.className = 'message-icon';
+        iconElement.textContent = message.icon; // 選択されたアイコンを適用
+        messageElement.appendChild(iconElement); // アイコン要素を追加
+    }
+
+    messageElement.appendChild(textElement); // メッセージテキスト要素を追加
+    messageElement.appendChild(timeElement); // タイムスタンプ要素を追加
+
+    messagesDiv.appendChild(messageElement); // メッセージ要素をDOMに追加
+    messagesDiv.scrollTop = messagesDiv.scrollHeight; // スクロールを最下部に
+});
+
+
+
+
+// AM/PM形式のタイムスタンプを生成する関数
+function formatAMPM(date) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0時間は12時間とする
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    const strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+}
+
+  </script>
+
+  
+</body>
+</html>
