@@ -49,6 +49,7 @@
     <button id="complete-settings">Let's chat</button>
 </div>
 
+
 <!-- コンテンツ表示画面 -->
 <div id="chat-container">
     <div id="messages"></div>
@@ -61,6 +62,16 @@
         <button id="send-button"><i class="fa fa-arrow-right"></i></button>
     </div>
     
+
+<!-- チャットルームの選択 -->
+<div id="chat-header">
+    <select id="room-selector">
+      <option value="startup_room">💡 起業相談部屋</option>
+      <option value="casual_room">🎉 わいわい部屋</option>
+      <option value="tech_room">🤖 テック部屋</option>
+    </select>
+</div>
+
 
 </div>
 
@@ -76,7 +87,7 @@
 <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } 
+    import { getDatabase, ref, push, set, onChildAdded, off, remove, onChildRemoved }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
   
     // Your web app's Firebase configuration・・・自分だけのキー！！！！
@@ -98,6 +109,7 @@
     const sendButton = document.getElementById('send-button');
     const messagesDiv = document.getElementById('messages');
     const messageInput = document.getElementById('message-input');
+    const roomSelector = document.getElementById('room-selector');
 
 // ユーザー設定
 document.addEventListener('DOMContentLoaded', function() {
@@ -144,9 +156,14 @@ let selectedIcon = '😎'; // デフォルト値を設定
 let selectedBackground = '#ffffff'; // デフォルトの背景色を設定
 const currentUserId = 'current_user';
 
+let selectedRoom = 'startup_room'; // デフォルトルーム
 
 // Send message function
 function sendMessage() {
+      // ユーザー設定に関するコードを関数内に移動
+  let selectedIcon = ''; // 初期値の設定が必要な場合はここに設定
+  let selectedBackground = ''; // 初期値の設定が必要な場合はここに設定
+
     const text = messageInput.value.trim();
     if (text) {
         const timestamp = new Date().toISOString(); // UTCのタイムスタンプをISO形式で生成
@@ -160,8 +177,8 @@ function sendMessage() {
         };
 
         // FirebaseにmessageDataオブジェクト全体を送信
-        push(ref(db, 'messages'), messageData);
-
+        push(ref(db, 'chatrooms/' + selectedRoom + '/messages'), messageData);
+        
         messageInput.value = ''; // Clear the message input after sending
         messageInput.style.height = 'auto'; // Reset the textarea height
     }
@@ -180,9 +197,26 @@ messageInput.addEventListener('keydown', function(event) {
   }
 });
 
+// グローバル変数としてリスナー参照を保持
+let currentMessagesRef;
 
-// Listen for new messages and append them to the messages div
-onChildAdded(ref(db, 'messages'), (snapshot) => {
+roomSelector.addEventListener('change', function() {
+  selectedRoom = this.value;
+
+  // 既存のリスナーを削除
+  if (currentMessagesRef) {
+    off(currentMessagesRef, 'child_added');
+  }
+
+  // 既存のメッセージをクリア
+  messagesDiv.innerHTML = '';
+
+  // 新しいリスナー参照を更新
+  currentMessagesRef = ref(db, 'chatrooms/' + selectedRoom + '/messages');
+
+
+    // Listen for new messages and append them to the messages div
+    onChildAdded(currentMessagesRef, (snapshot) => {    
     
     const message = snapshot.val();
 
@@ -217,8 +251,8 @@ onChildAdded(ref(db, 'messages'), (snapshot) => {
 
     messagesDiv.appendChild(messageElement); // メッセージ要素をDOMに追加
     messagesDiv.scrollTop = messagesDiv.scrollHeight; // スクロールを最下部に
+    });
 });
-
 
 
 
