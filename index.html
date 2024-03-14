@@ -152,6 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+
+
+
 let selectedIcon = '😎'; // デフォルト値を設定
 let selectedBackground = '#ffffff'; // デフォルトの背景色を設定
 const currentUserId = 'current_user';
@@ -215,10 +218,10 @@ roomSelector.addEventListener('change', function() {
   currentMessagesRef = ref(db, 'chatrooms/' + selectedRoom + '/messages');
 
 
-    // Listen for new messages and append them to the messages div
-    onChildAdded(currentMessagesRef, (snapshot) => {    
-    
-    const message = snapshot.val();
+// Listen for new messages and append them to the messages div
+onChildAdded(currentMessagesRef, (snapshot) => {    
+
+const message = snapshot.val();
 
 
     const messageDate = new Date(message.timestamp);
