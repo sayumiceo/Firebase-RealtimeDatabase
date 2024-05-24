@@ -9,6 +9,7 @@
 
 ## ③DEMO
 （任意）デプロイしている場合はURLを記入
+https://sayumiceo.github.io/gs_chatapp/
 
 ## ④工夫した点・こだわった点
 ユーザー設定画面
